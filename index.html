@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>webgl demo</title>
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+        <script src="http://go.163.com/2015/public/common/js/zepto.min.js"></script>
+        <script src="js/orienter.js"></script>
+        <script type="text/javascript" src="./js/three.min.js"></script>
+        <style>
+            *{margin:0;padding: 0;}
+            html,body{
+                height: 100%;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+<body>
+
+<script type="text/javascript">
+    $('body').bind("touchstart",function(e){
+        e.preventDefault();
+    });
+
+    var speed = 7;
+    var direction = 1;
+    var isPause = false;
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100000);
+    var webGLRenderer = new THREE.WebGLRenderer();
+    webGLRenderer.setClearColor(0x333333);
+    webGLRenderer.setSize(window.innerWidth, window.innerHeight);
+    webGLRenderer.shadowMapEnabled = true;
+    var imgList = [
+        './img/1.jpg',
+        './img/car.png',
+        './img/nei-2.png',
+        './img/nei-3.png',
+        './img/nei-1.png',
+    ];
+
+    data = [
+        {name:'bg' ,w: 2400,h:2574 ,x:0 ,y:0,z:0},
+        {name:'car' ,w:595,h:290,x:0,y:0 ,z:100 },
+        {name:'peo1' ,w:204*0.8,h:669*0.8,x:-280,y:-100 ,z:550 },
+        {name:'peo2' ,w:217*0.7,h:1002*0.7,x:300,y:-180 ,z:800 },
+        {name:'peo3' ,w:348*0.6,h:1219*0.6,x:-100,y:-200 ,z:1300 }
+    ];
+    function drawScene(img,w,h,x,y,z){
+        var mapTexture = new THREE.TextureLoader().load(img);
+        var sceneGeometry = new THREE.PlaneGeometry(w, h);
+        var planeMaterial = new THREE.MeshBasicMaterial({
+            transparent: true,
+            map: mapTexture
+        });
+        var plane = new THREE.Mesh(sceneGeometry,planeMaterial);
+        plane.position.x = x;
+        plane.position.y = y;
+        plane.position.z = z;
+        scene.add(plane);
+    }
+
+    for(var i = 0; i < data.length; i++) {
+        drawScene(imgList[i],data[i].w, data[i].h, data[i].x,data[i].y, data[i].z);
+    }
+    camera.position.x = 0;
+    camera.position.y = 0;
+    camera.position.z = 1300;
+    camera.lookAt(scene.position);
+
+    // var o = new Orienter();
+    // o.orient = function (objed) {
+    //     if(objed.b>0&&objed.b<85){
+    //         camera.position.y = (objed.b-85)*1.412345678;
+    //     }
+    //     if(objed.g>-35&&objed.g<35){
+    //         camera.position.x = objed.g*1.71234564156415151515;
+    //     }
+    // };
+    // o.init();
+
+   
+
+    $("body").swipeDown(function(e){
+        e.preventDefault();
+        isPause = false;
+        if(direction>0){
+            direction=-2;
+        }
+        direction -=1;
+    });
+
+    $("body").swipeUp(function(e){
+        e.preventDefault();
+        isPause = false;
+        if(direction<0){
+            direction=2;
+        }
+        direction +=1;
+      
+    });
+
+    function animate() {
+        requestAnimationFrame(animate);
+        render();
+    }
+    function render() {
+        if(isPause){
+            return;
+        }
+        camera.position.z += speed*direction;
+        if(camera.position.z > 3000){
+            camera.position.z = 3000;
+            isPause = true;
+        }
+
+        if(camera.position.z < 1299){
+            camera.position.z = 1300;
+            isPause = true;
+        }
+        webGLRenderer.clear();
+        webGLRenderer.render(scene,camera);
+    }
+
+    document.body.appendChild(webGLRenderer.domElement);
+    animate();
+    // window.onload = function(){
+    //     setTimeout(function(){
+    //         animate();
+    //     },100);
+    // };
+
+    
+</script>
+</body>
+</html>
